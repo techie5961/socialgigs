@@ -1,0 +1,54 @@
+// post request
+async function PostRequest(event,element,callback=null){
+  try{
+      event.preventDefault();
+ let inputs=element.querySelectorAll('.inp.required');
+ 
+ 
+ let isEmpty = false;
+
+ if(inputs){
+    inputs.forEach((input)=>{
+        if(input.value == ''){
+            isEmpty=true;
+            input.classList.add('empty');
+        }else{
+            input.classList.remove('empty');
+        }
+
+    });
+ }
+ if(isEmpty){
+    alert(10)
+ }
+ if(!isEmpty){
+  
+    element.querySelector('button').classList.add('active');
+    let inps=element.querySelectorAll('.input');
+    let form=new FormData();
+    inps.forEach((inp)=>{
+       form.append(inp.name,inp.value);
+    });
+    let response=await fetch(element.action,{
+        method : 'POST',
+        body : form
+     });
+     if(response.ok){
+        let data=await response.text();
+        if(IsJSONABLE(data)){
+            let json=JSON.parse(data);
+            CreateNotify(json.status,json.message);
+        }else{
+            CreateNotify('error',data);
+        }
+        if(callback !== null){
+            callback(response,event);
+        }
+        element.querySelector('button').classList.remove('active');
+     }
+ }
+  }catch(error){
+    CreateNotify('error',error.stack);
+    element.querySelector('button').classList.remove('active');
+  }
+}
